@@ -10,14 +10,14 @@
     <th>박빛나</th>
     <th>이승철</th>
     <th>하종수</th>
-    <th>한승규</th>
+    <th>한성규</th>
   </tr>
   <tr>
     <td><img src="https://i.namu.wiki/i/ZILsKyXWcHM8uj_n8GzghV5TodK2rlwkZYbBcIQQ89NGKPdKlrjB6o-O0kEPyDNhEHpekJ-TeujwOSbrzp0llA.svg" width="150"></td>
-    <td><img src="https://i.namu.wiki/i/OIXVGcqwZqkVv546uWnq2Sbtm0mU8xGugk1XDiM8k2jOIPv0PjCXto8HTS_vb-9403_lRNdYLDtdGKjSPNek9g.svg" width="150"></td>
+    <td><img src="https://cdn.seoulcity.co.kr/news/photo/202008/403047_203101_2112.png" width="150"></td>
     <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGWZg8FqLLI0fK-6dbrQJCpnLTExJzdH6o1Q&s" width="150"></td>
     <td><img src="https://i.namu.wiki/i/kWB5ni5OxQom0vmSxpmCsw-R76z2LLrObeR_2PO7Jc49li30-5QWBYXLPjklh_WbcYYnldbIjDCf5awkqxip7g.svg" width="150"></td>
-    <td><img src="https://cdn.seoulcity.co.kr/news/photo/202008/403047_203101_2112.png" width="150"></td>
+    <td><img src="https://i.namu.wiki/i/OIXVGcqwZqkVv546uWnq2Sbtm0mU8xGugk1XDiM8k2jOIPv0PjCXto8HTS_vb-9403_lRNdYLDtdGKjSPNek9g.svg" width="150"></td>
   </tr>
   <tr>
     <td><a href="https://github.com/sanjum-kim"><img src="https://img.shields.io/badge/GitHub-Sanjum_Kim-green?logo=github"></a></td>
