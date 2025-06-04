@@ -2,7 +2,7 @@
 
 # 👣팀 소개
 
-## 팀명 - 빛나레인저 or 이탈하지말아조
+## 팀명 - 이탈하지말아조
 
 <table>
   <tr>
@@ -13,11 +13,11 @@
     <th>한승규</th>
   </tr>
   <tr>
-    <td><img src="images/yuna.png" width="150"></td>
-    <td><img src="images/jiho.png" width="150"></td>
-    <td><img src="images/siin.png" width="150"></td>
-    <td><img src="images/mingyu.png" width="150"></td>
-    <td><img src="images/gildong.png" width="150"></td>
+    <td><img src="https://i.namu.wiki/i/ZILsKyXWcHM8uj_n8GzghV5TodK2rlwkZYbBcIQQ89NGKPdKlrjB6o-O0kEPyDNhEHpekJ-TeujwOSbrzp0llA.svg" width="150"></td>
+    <td><img src="https://i.namu.wiki/i/OIXVGcqwZqkVv546uWnq2Sbtm0mU8xGugk1XDiM8k2jOIPv0PjCXto8HTS_vb-9403_lRNdYLDtdGKjSPNek9g.svg" width="150"></td>
+    <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGWZg8FqLLI0fK-6dbrQJCpnLTExJzdH6o1Q&s" width="150"></td>
+    <td><img src="https://i.namu.wiki/i/kWB5ni5OxQom0vmSxpmCsw-R76z2LLrObeR_2PO7Jc49li30-5QWBYXLPjklh_WbcYYnldbIjDCf5awkqxip7g.svg" width="150"></td>
+    <td><img src="https://cdn.seoulcity.co.kr/news/photo/202008/403047_203101_2112.png" width="150"></td>
   </tr>
   <tr>
     <td><a href="https://github.com/sanjum-kim"><img src="https://img.shields.io/badge/GitHub-Sanjum_Kim-green?logo=github"></a></td>
@@ -226,4 +226,110 @@ remaining_contract = 0인 경우는 계약 만료 임박 또는 종료 상태로
 - ['remaining_contract'] 컬럼을 삭제하지 않았을 때, 높은 점수를 얻을 수 있지만 과적합 우려로 인해 삭제하고 학습하는 것이 좋다.
 - 컬럼을 삭제했을 때의 점수는 XGBoost 모델이 1등, 그 다음을 CatBoost 모델이 잇고 있다.
 - 현재의 데이터 셋에 XGBoost와 CatBoost, 두 모델을 사용하고 하이퍼 파라미터를 수정하여 더 높은 값을 찾아내야 한다.
+
+## XGBoost & CatBoost 성능 향상을 위한 하이퍼 파라미터값 조정
+
+### 하이퍼 파라미터 조건
+
+| 하이퍼파라미터         | 선택한 값들          | 의미 및 역할                                | 모델 성능에 미치는 영향                                                                              |
+| --------------- | --------------- | -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `depth`         | 4, 6, 8         | 각 트리의 최대 깊이.<br>값이 클수록 더 복잡한 패턴 학습 가능. | - **작을수록** 과적합 위험은 적지만 학습한 정보가 제한됨<br>- **클수록** 더 많은 패턴을 포착하지만 **과적합** 가능성 증가|
+| `learning_rate` | 0.01, 0.03, 0.1 | 각 트리의 기여 정도. 학습 속도 조절.                 | - **작을수록** 안정적인 학습 가능, 하지만 많은 트리 필요<br>- **클수록** 빠르게 수렴하지만 **불안정하거나 과적합** 가능|
+| `iterations`    | 200, 500, 800   | 학습에 사용할 트리 수 (전체 부스팅 단계 수)             | - 너무 **작으면** 언더피팅<br>- 너무 **크면** 과적합 가능|
+
+📊 모델 성능 비교 결과 (정렬 기준: F1-score 기준 내림차순)
+
+| 순위 | 모델       | 스케일러     | F1-score   | Accuracy | ROC AUC    | 하이퍼파라미터                                                   |
+| -- | -------- | -------- | ---------- | -------- | ---------- | --------------------------------------------------------- |
+| 1  | CatBoost | quantile | **0.8414** | 0.8285   | **0.9066** | `depth=6`, `iterations=800`, `learning_rate=0.1`          |
+| 2  | XGBoost  | standard | 0.8406     | 0.8280   | 0.9051     | `learning_rate=0.01`, `max_depth=10`, `n_estimators=1200` |
+| 3  | XGBoost  | minmax   | 0.8406     | 0.8280   | 0.9051     | `learning_rate=0.01`, `max_depth=10`, `n_estimators=1200` |
+| 4  | XGBoost  | maxabs   | 0.8406     | 0.8280   | 0.9051     | `learning_rate=0.01`, `max_depth=10`, `n_estimators=1200` |
+| 5  | XGBoost  | robust   | 0.8406     | 0.8280   | 0.9051     | `learning_rate=0.01`, `max_depth=10`, `n_estimators=1200` |
+| 6  | XGBoost  | none     | 0.8406     | 0.8280   | 0.9051     | `learning_rate=0.01`, `max_depth=10`, `n_estimators=1200` |
+| 7  | XGBoost  | quantile | 0.8401     | 0.8272   | 0.9055     | `learning_rate=0.03`, `max_depth=8`, `n_estimators=800`   |
+| 8  | CatBoost | standard | 0.8397     | 0.8267   | 0.9063     | `depth=8`, `iterations=500`, `learning_rate=0.1`          |
+| 9  | CatBoost | minmax   | 0.8397     | 0.8267   | 0.9063     | `depth=8`, `iterations=500`, `learning_rate=0.1`          |
+| 10 | CatBoost | maxabs   | 0.8397     | 0.8267   | 0.9063     | `depth=8`, `iterations=500`, `learning_rate=0.1`          |
+| 11 | CatBoost | none     | 0.8397     | 0.8267   | 0.9063     | `depth=8`, `iterations=500`, `learning_rate=0.1`          |
+| 12 | CatBoost | robust   | 0.8397     | 0.8267   | 0.9063     | `depth=8`, `iterations=500`, `learning_rate=0.1`          |
+
+
+## 머신러닝 시각화
+
+### ROC Curve
+
+![ROC_Curve](images/ROC_Curve.png)
+
+### Confusion Matrix Heatmap
+
+![Confusion_Matrix](images/Confusion_Matrix.png)
+
+### Feature Importance Plot
+
+![Feature_Importances](images/Feature_Importances.png)
+
+## 딥러닝      
+
+=== 최종 평가 지표 (Validation Best Accuracy 기준) ===
+F1 Score     : 0.9348
+Precision    : 0.9345
+Recall       : 0.9351
+Accuracy (%) : 93.55%
+
+# 결론
+ㅇㅇㅇ 모델이 ㅇㅇㅇ 값으로 ㅇㅇㅇ 우세하여, ㅇㅇㅇ 스케일러를 사용하는 것이 좋다.
+그래서 ㅇㅇㅇㅇ
+
+# 이탈률 감소 대책
+
+### 1. TV & 영화 번들 서비스 유도
+분석 근거: TV와 Movie를 둘 다 구독할 때 이탈률 감소에 유의미한 수치가 나타남.
+
+대책:
+
+- TV/영화 패키지 결합 시 할인 제공
+
+- 신규 고객 대상 TV & 영화 무료 체험 제공
+
+### 2. 계약 유도 전략
+분석 근거: remaining_contract가 있을 때 이탈률이 낮음
+
+대책:
+
+- 무계약 고객 대상으로 장기 계약 유도 + 사은품/할인 제공
+
+- 계약 기간 만료 직전 자동 리마인드 및 재계약 유도
+
+- 계약 종료 예정자 대상 맞춤 마케팅
+
+### 3. 다운로드 용량별 맞춤 대응 전략
+분석 근거 : download data 가 적정량 있을 경우 이탈률이 낮지만 download over limit이 많을 경우 이탈률이 높은 경향을 보임
+
+대책 :
+- 데이터 사용량에 따른 고객 세분화 대응
+
+| 고객 유형     | 특징                                                | 이탈률 | 행동 패턴              |
+| --------- | ------------------------------------------------- | --- | ------------------ |
+| 일반 사용자    | 보통 수준의 다운로드 사용                                    | 낮음  | 꾸준히 사용, 이탈 가능성 낮음  |
+| ** 헤비유저** | 평균보다 훨씬 높은 `download_avg` & `download_over_limit` | 높음  | 초과요금에 민감, 불만족 시 이탈 |
+
+- 초과요금 발생 고객 분석을 기반으로 무제한 요금제 / 패키지 리디자인
+- 사용량 초과 전 알림 & 제어 시스템 강화
+    : 일정 한계치 접근 시 사전 경고 메시지 자동 발송
+    한도 초과 시 자동으로 데이터 속도 제한 or 추가 사용 동의 팝업 → 불만 예방
+
+### 4. 1인가구 특별 혜택 전략
+분석 근거 : ID는 계약 건의 총 인원 수를 포함하는 것이 아닌, 계약 1건당 카운트가 올라간다.
+- 가구 내의 인원 수 보다 계약한 가구의 총 수가 중요하다.
+
+대책 : 나날히 늘어가는 1인 가구를 위한 특별 혜택을 제공한다.
+- 사회 초년생을 위한 무제한 데이터 업로드 서비스 제공.
+- 인터넷 계약 시, 
+
+
+
+
+
+
 
