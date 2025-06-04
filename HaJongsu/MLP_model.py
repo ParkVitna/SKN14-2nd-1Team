@@ -30,6 +30,22 @@ def compute_sequence_metrics(pred_orders, target_orders):
 
     return f1, precision, recall
 
+class StandardScalerTorch:
+    def __init__(self):
+        self.mean = None
+        self.std = None
+
+    def fit(self, X):
+        self.mean = X.mean()
+        self.std = X.std()
+        return self
+
+    def transform(self, X):
+        return (X - self.mean) / self.std
+
+    def fit_transform(self, X):
+        return self.fit(X).transform(X)
+
 class Dataset_Module:
     def __init__(self, file_name):
         super().__init__()
@@ -40,12 +56,16 @@ class Dataset_Module:
         y = df['churn']
         
         self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, random_state=42, test_size=0.2, stratify=y)
+        
+        self.scaler = StandardScalerTorch()
+        self.X_train = self.scaler.fit_transform(self.X_train)
+        self.X_val = self.scaler.transform(self.X_val)
     
     def get_train_dataset(self):
         train_dataset = Train_Dataset(self.X_train, self.y_train)
         val_dataset = Train_Dataset(self.X_val, self.y_val)
         
-        return train_dataset, val_dataset
+        return train_dataset, val_dataset, self.scaler
         
 
 
@@ -69,13 +89,18 @@ class MLPNet(nn.Module):
         self.Cin = Cin
         
         self.layers = nn.Sequential(
-            nn.Linear(Cin, 16),
+            nn.Linear(Cin, 64),
             nn.ReLU(),
-            nn.Linear(16, 32),
+            nn.Linear(64, 128),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(128, 256),
             nn.ReLU(),
-            nn.Linear(32, 1)
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(32,1)
         )
     
     def forward(self,x):
@@ -86,9 +111,9 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
     
-    dataset = Dataset_Module(file_name = 'train.csv')
+    dataset = Dataset_Module(file_name = 'train_2.csv')
     
-    train_dataset, val_dataset = dataset.get_train_dataset()
+    train_dataset, val_dataset, scaler = dataset.get_train_dataset()
     
     Cin = train_dataset.__getitem__(0)[0].shape
     
@@ -104,7 +129,7 @@ def main():
     
     criterion = nn.BCEWithLogitsLoss()
     
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     
     os.makedirs('./mlp_ckpt', exist_ok=True)
     
@@ -166,7 +191,11 @@ def main():
         print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
         print(f"Epoch {epoch+1} - F1 : {val_f1:.4f}, Precision : {val_precision:.4f}, Recall : {val_recall:.4f}")
         
-
+        if val_accuracy > best_acc:
+            best_acc = val_accuracy
+            torch.save({'model_state_dict' : model.state_dict(),
+                        'scaler' : scaler},'./mlp_ckpt/best_mlp_2.pth')
+            print(f"Best model saved at epoch {epoch+1} (acc : {val_accuracy:.4f})")
 
 if __name__ == '__main__':
     main()
