@@ -14,7 +14,7 @@ def data_load():
     # 칼럼명 오타 수정
     # data_df.rename(columns={'reamining_contract': 'remaining_contract'}, inplace=True)
     # id 제거
-    # data_df.drop(columns=["id"], inplace=True)
+    data_df.drop(columns=["id"], inplace=True)
     # 결측치 0으로 채우기
     # data_df = data_df.fillna(0)
 
@@ -99,7 +99,8 @@ class ChurnModelTrainer:
             'minmax': MinMaxScaler(),
             'maxabs': MaxAbsScaler(),
             'quantile': QuantileTransformer(),
-            'robust': RobustScaler()
+            'robust': RobustScaler(),
+            'none': None
         }
         self.cat_features = ["subscription_status"]
         self.results = []
@@ -120,8 +121,12 @@ class ChurnModelTrainer:
                 X_cat[col] = le.fit_transform(X_cat[col].astype(str))
 
         # 스케일링
-        scaler = self.scalers[scaler_name]
-        X_num_scaled = pd.DataFrame(scaler.fit_transform(X[num_features]), columns=num_features)
+
+        if scaler_name == 'none':
+            X_num_scaled = pd.DataFrame(X[num_features], columns=num_features)
+        else:
+            scaler = self.scalers[scaler_name]
+            X_num_scaled = pd.DataFrame(scaler.fit_transform(X[num_features]), columns=num_features)
 
         X_processed = pd.concat([X_num_scaled, X_cat], axis=1)
         return train_test_split(X_processed, y, test_size=0.2, stratify=y, random_state=42)
@@ -231,19 +236,21 @@ if __name__ == '__main__':
 
 
 # == Best Model Saved: CatBoost + quantile scaler ==
-# F1-score: 0.8416, Accuracy: 0.8288, ROC AUC: 0.9061
+# F1-score: 0.8414, Accuracy: 0.8285, ROC AUC: 0.9066
 #
-# == Best Parameters: {'depth': 8, 'iterations': 500, 'learning_rate': 0.1} ==
+# == Best Parameters: {'depth': 6, 'iterations': 800, 'learning_rate': 0.1} ==
 #
 #
-#       model    scaler        f1  accuracy   roc_auc                                                          params
-# 0  CatBoost  quantile  0.841575  0.828779  0.906149           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
-# 1   XGBoost  quantile  0.841285  0.829125  0.905850  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1000}
-# 2   XGBoost  standard  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
-# 3   XGBoost    minmax  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
-# 4   XGBoost    maxabs  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
-# 5   XGBoost    robust  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
-# 6  CatBoost  standard  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
-# 7  CatBoost    minmax  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
-# 8  CatBoost    maxabs  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
-# 9  CatBoost    robust  0.839706  0.826704  0.906282           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
+#        model    scaler        f1  accuracy   roc_auc                                                          params
+# 0   CatBoost  quantile  0.841423  0.828520  0.906630           {'depth': 6, 'iterations': 800, 'learning_rate': 0.1}
+# 1    XGBoost  standard  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
+# 2    XGBoost    minmax  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
+# 3    XGBoost    maxabs  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
+# 4    XGBoost    robust  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
+# 5    XGBoost      none  0.840587  0.828001  0.905126  {'learning_rate': 0.01, 'max_depth': 10, 'n_estimators': 1200}
+# 6    XGBoost  quantile  0.840058  0.827222  0.905497    {'learning_rate': 0.03, 'max_depth': 8, 'n_estimators': 800}
+# 7   CatBoost  standard  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
+# 8   CatBoost    minmax  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
+# 9   CatBoost    maxabs  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
+# 10  CatBoost      none  0.839706  0.826704  0.906283           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
+# 11  CatBoost    robust  0.839706  0.826704  0.906282           {'depth': 8, 'iterations': 500, 'learning_rate': 0.1}
