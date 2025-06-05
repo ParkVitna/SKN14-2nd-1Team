@@ -110,7 +110,6 @@ df = pd.read_csv('internet_service_churn.csv')
  - reamining contract 특성 remaining contract의 오타로 판단.
 
  - .rename 사용해서 컬럼명 변경
- - 
 
 변경된 컬럼명 확인
 
@@ -224,7 +223,7 @@ remaining_contract = null -> 잔여 계약 기간 x
 ### 수치 범주형 변수 vs Churn
 
 #### download_over_limit
-![download_over_limit](/images/subscriber_countplot.png)
+![download_over_limit](/images/download_over_limit_countplot.png)
     
 
 
@@ -232,7 +231,7 @@ remaining_contract = null -> 잔여 계약 기간 x
 
 #### subscribtion age viloin plot
 
-![subscribtion age viloin plot](/images/subscriber_countplot.png)
+![subscribtion age viloin plot](/images/subscribtion_age_viloinplot.png)
 
 구독 기간 2년까지에서 이탈 ↑
 이후 기간에서 ↓
@@ -240,7 +239,7 @@ remaining_contract = null -> 잔여 계약 기간 x
 #### download & upload avg.
 
     
-![download & upload avg](/images/download_upload_avg..png)
+![download & upload avg](/images/download_upload_avg.png)
     
 
 
@@ -378,7 +377,7 @@ TV와 영화 구독자들을 묶은 새로운 컬럼인 subscription에서
 ## 이탈률 감소 대책
 
 ### 1. TV & 영화 번들 서비스 유도
-분석 근거: TV와 Movie를 둘 다 구독할 때 이탈률 감소에 유의미한 수치가 나타남.
+분석 근거: 인터넷을 포함한 TV와 Movie를 둘 다 구독할 때 이탈률 감소에 유의미한 변화가 나타남.
 
 대책:
 
@@ -386,18 +385,16 @@ TV와 영화 구독자들을 묶은 새로운 컬럼인 subscription에서
 
 - 신규 고객 대상 TV & 영화 무료 체험 제공
 
-
+- 구독 장기 유지 시, 사용자가 주로 시청한 분야의 시사회 티켓 제공
 
 ### 2. 계약 유도 전략
-분석 근거: remaining_contract가 있을 때 이탈률이 낮음
+분석 근거: 잔여 계약 기간이 있을 때 이탈률이 낮음
 
 대책:
 
 - 무계약 고객 대상으로 장기 계약 유도 + 사은품/할인 제공
 
-- 계약 기간 만료 직전 자동 리마인드 및 재계약 유도
-
-- 계약 종료 예정자 대상 맞춤 마케팅
+- 계약 기간 만료 직전 자동 리마인드(문자, 메일링) 및 특별 혜택(계약 연장 시, 사용자 특화 오프라인 아이템 제공 - 영화 & 뮤지컬 티켓, 방청권등)
 
 ### 3. 다운로드 용량별 맞춤 대응 전략
 분석 근거 : download data 가 적정량 있을 경우 이탈률이 낮지만 download over limit이 많을 경우 이탈률이 높은 경향을 보임
@@ -416,5 +413,11 @@ TV와 영화 구독자들을 묶은 새로운 컬럼인 subscription에서
     한도 초과 시 자동으로 데이터 속도 제한 or 추가 사용 동의 팝업 → 불만 예방
 
 
+### 4. 1인가구 특별 혜택 전략
+분석 근거 : ID는 계약 건의 총 인원 수를 포함하는 것이 아닌, 계약 1건당 카운트가 올라간다.
 
+가구 내의 인원 수 보다 계약한 가구의 총 수가 중요하다.
+대책 : 나날히 늘어가는 1인 가구를 위한 특별 혜택을 제공한다.
+
+사회 초년생을 위한 무제한 데이터 업로드 서비스 제공.
 
