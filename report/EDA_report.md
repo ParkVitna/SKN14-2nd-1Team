@@ -282,17 +282,15 @@ upload와 download 모두 없거나 적은 회원의 이탈이 몰려있음.
 # 9. Feature Engineering
 
 - 현재 시각화 분석시 TV 구독, 영화 구독에 대해 각각 이탈 or 유지만 분석함,
-- 하지만, TV 구독과 영화 구독을 둘 다 하지 않는 경우, 둘 다 하는 경우, 하나만 하는 경우로 데이터들이 기록되어있기 때문에 새롭게 subscription_status 라는 column을 만들어서
+- 하지만, TV 구독과 영화 구독을 둘 다 하지 않는 경우, 둘 다 하는 경우는 알 수 없기에,
+- 
 0. : 구독 없음
 1. : TV 구독
 2. : 영화 구독
 3. : 둘 다 구독
 
 
-과 같은 형태로 새로 만드는 방법으로 새롭게 상관성을 찾고 시각화하여  확인하는게 좋지 않을까 라는 의문에서 새로운 컬럼 생성
-
-
- 'subscription_status'새로운 컬럼 생성
+과 같은 형태로 새로 특성을 만들어 상관성을 찾고 시각화하여 확인하는게 좋지 않을까 라는 의문에서 새로운 컬럼 'subscription_status' 생성
 
 - 시각화로 이탈률 확인
 
@@ -311,7 +309,7 @@ None에서의 이탈률도 높았지만, 영화만 구독한 구독자의 이탈
 
 
     
-![subscribe_combine_count](images/subscribe_combine_count.png
+![subscribe_combine_count](/images/subscribe_combine_count.png)
     
 
 
